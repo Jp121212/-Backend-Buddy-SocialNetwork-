@@ -1,8 +1,8 @@
-import { Router } from "express";
-import { PrismaClient } from "@prisma/client";
-
-const router = Router();
+const { PrismaClient } = require('@prisma/client');
+const express = require('express');
+const router = express.Router();
 const prisma = new PrismaClient();
+
 
 
 
@@ -18,7 +18,9 @@ router.post('/post', async (req, res) => {
 router.get('/post', async (req, res) => {
     const posts = await prisma.post.findMany({
         select:{
+            userId:true,
             id : true,
+            content : true,
         }     
     });
     res.json(posts);
@@ -97,4 +99,4 @@ router.get('/post', async (req, res) => {
   }})
   
 
-export default router;
+  module.exports = router;
