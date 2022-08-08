@@ -5,7 +5,7 @@ const { PrismaClient } = require('@prisma/client');
 const express = require('express');
 const router = express.Router();
 const prisma = new PrismaClient();
-const { expressjwt: jwt } = require("express-jwt");
+var { expressjwt: jwt } = require("express-jwt");
 var jwt1 = require('jsonwebtoken');
 const secretKey = process.env.SECRET_KEY;
 
