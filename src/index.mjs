@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import bodyparser from 'body-parser';
 import user from './routes/user.js';
 import followers from './routes/followers.js';
-import post from './routes/Post.js';
+import Post from './routes/Post.js';
 import comment from './routes/comment.js';
 import morgan from "morgan";
 import cors from "cors";
@@ -29,7 +29,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(user);
 app.use(followers);
-app.use(post);
+app.use(Post);
 app.use(comment);
 
 
