@@ -16,7 +16,7 @@ router.use(
       secret: secretKey,
       algorithms: ["HS256"],
     })
-  .unless(({path: ['/api/v1/login']})));
+  .unless(({path: ['/api/v1/login','/Signup']})));
 
   function AccessTkn(username){
     return jwt1.sign({
@@ -57,7 +57,7 @@ router.use(
 //CRUD FACULTAD
 
 //POST FACULTAD
-router.post('/users', async (req, res) => {
+router.post('/Signup', async (req, res) => {
     const result = await prisma.user.create({
       // req.body es la info que manda el usuario para crear
       data: req.body
