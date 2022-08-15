@@ -70,6 +70,7 @@ router.post('/Signup', async (req, res) => {
     const user = await prisma.user.findMany({
       where: { id: Number(id)},
       select:{
+        id: true,
         username: true,
         imagen: true,
         email: true,
@@ -79,13 +80,39 @@ router.post('/Signup', async (req, res) => {
                 content: true,
                 createdAt: true,
                 likes: true,
-                comments: true,
+                comments: {
+                  select:{
+                    id : true,
+                 
+                    content: true,
+                    createdAt: true,
+                    user: {
+                      select:{
+                        id : true,
+                        username: true,
+                        imagen: true,
+                        email: true,
+                      }
+                    }
+                }
+                
+                }
+
               }
             },comments: {
               select:{
                 id : true,
                 content: true,
                 createdAt: true,
+                userId: true,
+                postId: true, 
+                user: {
+                  select:{
+                    username: true,
+                    imagen: true,
+                    email: true,
+                  }
+                },
               }
             }
 
@@ -98,7 +125,12 @@ router.post('/Signup', async (req, res) => {
     const { id } = req.params;
     const user = await prisma.user.findMany({
       where: { id: Number(id)},
-      select:{
+     
+      select:{ 
+      id : true,
+      username: true,
+      imagen: true,
+      email: true,
         following: {
           select:{
             following : {
@@ -106,7 +138,31 @@ router.post('/Signup', async (req, res) => {
                 id : true,
                 email: true,
                 username: true,
-                post: true,
+                post: {
+                  select:{
+                    id : true,
+                    content: true,
+                    createdAt: true,
+                    likes: true,
+                    comments: {
+                      select:{
+                        id : true,
+                        content: true,
+                        createdAt: true,
+                        user: {
+                          select:{
+                            id : true,
+                            username: true,
+                            imagen: true,
+                            email: true,
+                            
+                          }
+                        }
+                    }}
+                  }
+                },
+                imagen: true,
+                comments: true,
               }
             }
           }
@@ -158,7 +214,15 @@ router.get('/users', async (req, res) => {
                 id : true,
                 email: true,
                 username: true,
-                post: true,
+                post: {
+                  select:{
+                    id : true,
+                    content: true,
+                  }
+                },
+                imagen: true,
+                comments: true,
+
               }
             }
           }
@@ -176,6 +240,14 @@ router.get('/users', async (req, res) => {
                 id : true,
                 content: true,
                 createdAt: true,
+                user: {
+                  select:{
+                    id : true,
+                    username: true,
+                    imagen: true,
+                    email: true,
+                  }
+                },
               }
             }
           
@@ -185,6 +257,8 @@ router.get('/users', async (req, res) => {
     });
     res.json(userss);
   })
+
+
 
   router.get('/user/:id', async (req, res) => {
     const { id } = req.params;
@@ -203,6 +277,7 @@ router.get('/users', async (req, res) => {
                 id : true,
                 email: true,
                 username: true,
+                comments: true,
               }
             }
           }
@@ -215,7 +290,17 @@ router.get('/users', async (req, res) => {
                 id : true,
                 email: true,
                 username: true,
-                post: true,
+                post: {
+                  select:{
+                    user:{
+                      select:{
+                        username: true,
+                        imagen: true,}
+                    },
+                    content: true,
+                    }
+                },
+                comments: true,
               }
             }
           }
@@ -227,12 +312,26 @@ router.get('/users', async (req, res) => {
                 createdAt: true,
                 likes: true,
                 comments: true,
+                user: {
+                  select:{
+                    username: true,
+                    imagen: true,
+                    email: true,
+                  }
+                }
               }
             },comments: {
               select:{
                 id : true,
                 content: true,
                 createdAt: true,
+                user: {
+                  select:{
+                    username: true,
+                    imagen: true,
+                    email: true,
+                  }
+                }
               }
             }
           
@@ -275,6 +374,7 @@ router.get('/users', async (req, res) => {
                 email: true,
                 username: true,
                 post: true,
+                comments: true,
               }
             }
           }

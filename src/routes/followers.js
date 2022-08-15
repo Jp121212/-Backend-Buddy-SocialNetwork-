@@ -8,11 +8,19 @@ router.use(cors());
 
 //POST FACULTAD
 router.post('/follows', async (req, res) => {
+   
     const result = await prisma.follows.create({
-      // req.body es la info que manda el usuario para crear
-      data: req.body
+        follower: req.body.follower,
+        following: req.body.following,
     });
-    res.json(result);
+
+    if (!follower || !following) {
+        return res.status(400).json({
+            message: 'No puedo crear seguidor repetido'
+        });
+    } else {
+        res.json(result);
+    }
   })
 
 //GET TODO DE CADA FACULTAD
@@ -23,12 +31,18 @@ router.get('/follows', async (req, res) => {
               select:{
                 id : true,
                 email: true,
+                username: true,
+                imagen: true,
+                
               }
             },
             following: {
               select:{
                 id : true,
                 email: true,
+                username: true,
+                imagen: true,
+
               }
             }
           }
@@ -36,7 +50,25 @@ router.get('/follows', async (req, res) => {
     res.json(userss);
   })
 
-  
+  //GET TODO DE CADA FACULTAD
+router.delete('/follow/:id', async (req, res) => {
+ 
+  try{ const userss = await prisma.follows.delete({
+    where: { following : { id: req.body.following } }
+  });
+   if (userss) {
+    res.json({
+      message: 'Se ha eliminado correctamente'
+    }); 
+    res.json(userss); 
+  }else{
+    res.json({
+      message: 'No se ha eliminado correctamente'
+    });}
+  }catch(error){
+    res.json({error: error});
+  }
+  })
  
   router.get('/follows/:id', async (req, res) => {
     const { id } = req.params;
@@ -94,6 +126,11 @@ router.get('/follows', async (req, res) => {
     });
     res.json(user);
   })
+
+  
+  
+
+
 
 
   module.exports = router;

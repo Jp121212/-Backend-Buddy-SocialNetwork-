@@ -12,20 +12,46 @@ router.post('/post', async (req, res) => {
      
       data: req.body
     });
+    
     res.json(result);
   })
 
 
-router.get('/post', async (req, res) => {
-    const posts = await prisma.post.findMany({
+router.get('/post/user/:id', async (req, res) => {
+  const { id } = req.params;
+  const user = await prisma.post.findMany({
+    where: { id: Number(id)},
+    select:{
+      id: true,
+      content: true,
+      createdAt: true,
+      likes: true,
+      userId: true,
+      comments: {
         select:{
-            userId:true,
-            id : true,
-            content : true,
-        }     
-    });
-    res.json(posts);
-  })
+          id : true,
+          content: true,
+          createdAt: true,
+          userId: true,
+          user: {
+            select:{
+              username: true,
+              imagen: true,
+              email: true,
+            }}
+        }
+      },
+      user: {
+        select:{
+          username: true,
+          imagen: true,
+          email: true,
+        }
+      }
+    }
+  });
+  res.json(user);
+})
 
   router.put('/postlike/:id', async (req, res) => {
     
