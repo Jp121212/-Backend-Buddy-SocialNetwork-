@@ -4,24 +4,47 @@ const express = require('express');
 const router = express.Router();
 const prisma = new PrismaClient();
 router.use(cors());
-
-
-//POST FACULTAD
+// POST para seguir a un usuario
 router.post('/follows', async (req, res) => {
-   
-    const result = await prisma.follows.create({
-        follower: req.body.follower,
-        following: req.body.following,
-    });
+  try {
+      // Obtén el ID del seguidor y del usuario seguido del cuerpo de la solicitud
+      const { followerId, followingId } = req.body;
 
-    if (!follower || !following) {
-        return res.status(400).json({
-            message: 'No puedo crear seguidor repetido'
-        });
-    } else {
-        res.json(result);
-    }
-  })
+      // Verifica si ya existe un registro de seguimiento con los mismos IDs
+      const existingFollow = await prisma.follows.findUnique({
+          where: {
+              followerId_followingId: {
+                  followerId,
+                  followingId
+              }
+          }
+      });
+
+      // Si ya existe un registro, devuelve un mensaje de error
+      if (existingFollow) {
+          return res.status(400).json({
+              message: 'No se puede seguir al mismo usuario más de una vez.'
+          });
+      }
+
+      // Crea un nuevo registro de seguimiento
+      const result = await prisma.follows.create({
+          data: {
+              followerId,
+              followingId
+          }
+      });
+
+      // Devuelve el resultado del seguimiento creado
+      res.json(result);
+  } catch (error) {
+      // Maneja cualquier error
+      console.error('Error al seguir al usuario:', error);
+      res.status(500).json({
+          message: 'Ha ocurrido un error al seguir al usuario. Por favor, inténtalo de nuevo más tarde.'
+      });
+  }
+});
 
 //GET TODO DE CADA FACULTAD
 router.get('/follows', async (req, res) => {
@@ -72,61 +95,35 @@ router.delete('/follow/:id', async (req, res) => {
  
   router.get('/follows/:id', async (req, res) => {
     const { id } = req.params;
-    const user = await prisma.follows.findMany({
-      where: { id: Number(id)},
-      select:{
-        id: true,
-        username: true,
-        imagen: true,
-        email: true,
-        password: true,
-        followers: {
-          select:{
-            follower : {
-              select:{
-                id : true,
-                email: true,
-                username: true,
-              }
+    try {
+      const user = await prisma.follows.findMany({
+        where: {
+          followerId: parseInt(id) // Cambiado de 'id' a 'followerId'
+        },
+        select: {
+          follower: {
+            select: {
+              email: true,
+              username: true
+            }
+          },
+          following: {
+            select: {
+              email: true,
+              username: true,
+              imagen: true, // Agregado
+              post: true, // Agregado
+              comments: true // Agregado
             }
           }
-        },
-        following: {
-          select:{
-            following : {
-              select:{
-                imagen: true,
-                id : true,
-                email: true,
-                username: true,
-                post: true,
-              }
-            }
-          }
-        },
-        post: {
-          select:{
-                id : true,
-                content: true,
-                createdAt: true,
-                likes: true,
-                comments: true,
-              }
-            },comments: {
-              select:{
-                id : true,
-                content: true,
-                createdAt: true,
-              }
-            }
-          
-        
-
-      }
-    });
-    res.json(user);
-  })
-
+        }
+      });
+      res.json(user);
+    } catch (error) {
+      console.error('Error al obtener seguimientos:', error);
+      res.status(500).json({ error: 'Error interno del servidor' });
+    }
+  });
   
   
 
